@@ -44,7 +44,7 @@ if __name__ == '__main__':
 	field_tails = []
 
 	radius = 1.0
-	dt_loop = 0.1
+	dt_loop = 0.5
 
 	current_time = dt_loop
 
@@ -52,15 +52,25 @@ if __name__ == '__main__':
 	while (True):
 		plt.clf()
 		for unit_point in points_unit_circle:
-			x = unit_point * radius + charge_position
-			E_vector = electric_field(charge_position, charge_velocity, charge_acceleration, x)
+			field_tails.append(FieldTail(unit_point, charge_position, charge_velocity, charge_acceleration))
+
+		for field_tail in field_tails:
+			E_vector = field_tail.E_vector()
 			E_vector *= ELECTRIC_FIELD_SCALING
 			E_vector_length = np.linalg.norm(E_vector)
+			x = np.array(field_tail._position)
 			plt.arrow(x[0], x[1], E_vector[0], E_vector[1], head_width = 0.5, head_length = 0.5)
+
+			#TODO: be careful of sneaky python pass by reference?
+
+			field_tail.advance(dt_loop)
+
+			#TODO: if we run this forever, we should probably clear points too far apart (should be ordered)
+			#solution: flag the index of a field_tail really close to boundary and delete all after that index
 
 		plt.axis([-10, 10, -10, 10])
 		fig.canvas.draw()
 
-		radius += dt_loop * SPEED_OF_LIGHT
+		#radius += dt_loop * SPEED_OF_LIGHT
 
 		time.sleep(dt_loop)
