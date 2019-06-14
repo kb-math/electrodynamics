@@ -5,15 +5,18 @@ import numpy as np
 import matplotlib.pyplot as plt
 import time
 
+dt_loop = 1.50
+
 # how many metres represents one newton per coulomb
 ELECTRIC_FIELD_SCALING = 0.6
 
+
 class FieldTail(object):
 	def __init__(self, position, source_position, source_velocity, source_acceleration):
-		self._position = position
-		self._source_position = source_position
-		self._source_velocity = source_velocity
-		self._source_acceleration = source_acceleration
+		self._position = np.array(position)
+		self._source_position = np.array(source_position)
+		self._source_velocity = np.array(source_velocity)
+		self._source_acceleration = np.array(source_acceleration)
 		self._time = np.linalg.norm(source_position - position)/SPEED_OF_LIGHT
 		self._direction = (position - source_position)/np.linalg.norm(source_position - position)
 
@@ -39,14 +42,15 @@ if __name__ == '__main__':
 
 	charge_position = np.array([0.0, 0.0, 0.0])
 	charge_velocity = np.array([0.0, 0.0, 0.0])
-	charge_acceleration = np.array([5.0, 0.0, 0.0])
+	charge_acceleration = np.array([1.0, 0.0, 0.0])
+
 
 	field_tails = []
 
 	radius = 1.0
-	dt_loop = 0.5
 
 	current_time = dt_loop
+	
 
 	#TODO: factor in general speed of light and consequent retardation
 	while (True):
@@ -61,6 +65,8 @@ if __name__ == '__main__':
 			x = np.array(field_tail._position)
 			plt.arrow(x[0], x[1], E_vector[0], E_vector[1], head_width = 0.5, head_length = 0.5)
 
+			plt.scatter(charge_position[0], charge_position[1], color = 'blue')
+
 			#TODO: be careful of sneaky python pass by reference?
 
 			field_tail.advance(dt_loop)
@@ -72,5 +78,5 @@ if __name__ == '__main__':
 		fig.canvas.draw()
 
 		#radius += dt_loop * SPEED_OF_LIGHT
-
 		time.sleep(dt_loop)
+
