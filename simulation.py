@@ -6,7 +6,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import time
 
-dt = 1.0
+dt = 0.8
 
 # how many metres represents one newton per coulomb
 ELECTRIC_FIELD_SCALING = 0.1
@@ -41,7 +41,7 @@ if __name__ == '__main__':
 	fig = plt.figure()
 	fig.show()
 
-	charge_motion = motion_lib.Sinusoidal(freq = 0.1, max_speed = 0.3 * SPEED_OF_LIGHT)
+	charge_motion = motion_lib.Sinusoidal(freq = 0.1, max_speed = 0.6 * SPEED_OF_LIGHT)
 	'''
 	charge_motion = motion_lib.ConstantAcc(
 		np.array([0.1,0.0,0.0]), 
@@ -87,5 +87,5 @@ if __name__ == '__main__':
 
 		br += 1
 		current_time += dt
-		time.sleep(dt)
+		time.sleep(dt * 1.0)
 
