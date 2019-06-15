@@ -12,9 +12,9 @@ def near_field_term(source_position, source_velocity, target_position):
 	displacement_normalised = displacement / distance
 	normalised_velocity = source_velocity / SPEED_OF_LIGHT
 
-	lorentz_factor_squared = 1 / (1 - normalised_velocity)
+	lorentz_factor_squared = 1/(1 - normalised_velocity.dot(normalised_velocity))
 
-	scaling = (lorentz_factor_squared * (1 - displacement_normalised.dot(normalised_velocity))**3)
+	scaling = lorentz_factor_squared * (1 - displacement_normalised.dot(normalised_velocity))**3
 
 	return (displacement_normalised - normalised_velocity) / (scaling * distance**2)
 
