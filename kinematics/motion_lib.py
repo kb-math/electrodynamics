@@ -30,5 +30,5 @@ def Sinusoidal(freq, max_speed, pos0 = np.array([0.0, 0.0, 0.0]), direction = np
 	amplitude = max_speed/omega * direction
 	return Motion(
 			lambda t: amplitude * math.sin(omega*t) + pos0,
-			lambda t: amplitude * omega * math.cos(t),
-			lambda t: -amplitude**2 * omega * math.sin(t))
+			lambda t: amplitude * omega * math.cos(omega*t),
+			lambda t: -amplitude * omega**2 * math.sin(omega*t))

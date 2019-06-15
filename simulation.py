@@ -41,16 +41,14 @@ if __name__ == '__main__':
 	fig = plt.figure()
 	fig.show()
 
-	charge_motion = motion_lib.Sinusoidal(freq = 0.1, max_speed = 0.9 * SPEED_OF_LIGHT)
-
-	charge_position = np.array([0.0, 0.0, 0.0])
-	charge_velocity = np.array([0.0, 0.0, 0.0])
-	charge_acceleration = np.array([1.0, 0.0, 0.0])
-
-
+	charge_motion = motion_lib.Sinusoidal(freq = 0.1, max_speed = 0.3 * SPEED_OF_LIGHT)
+	'''
+	charge_motion = motion_lib.ConstantAcc(
+		np.array([0.1,0.0,0.0]), 
+		np.array([-0.9,0.0,0.0]), 
+		np.array([0.0,0.0,0.0]))
+	'''
 	field_tails = []
-
-	radius = 1.0
 
 	current_time = 0.0
 	br = 0
@@ -63,7 +61,7 @@ if __name__ == '__main__':
 		charge_velocity = np.array(charge_kinematics.velocity)
 		charge_acceleration = np.array(charge_kinematics.acceleration)
 
-		should_plot_electric_field = (br % 2 == 0)
+		should_plot_electric_field = (br % 1 == 0)
 		if should_plot_electric_field:
 			for unit_point in points_unit_circle:
 				field_tails.append(FieldTail(unit_point + charge_position, charge_position, charge_velocity, charge_acceleration))
