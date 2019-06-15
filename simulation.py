@@ -11,6 +11,9 @@ dt = 0.8
 # how many metres represents one newton per coulomb
 ELECTRIC_FIELD_SCALING = 0.1
 
+# radiation that has travelled further than this won't be plotted to save CPU and RAM
+MAX_DISTANCE = 15.0
+
 
 class FieldTail(object):
 	def __init__(self, position, source_position, source_velocity, source_acceleration):
@@ -66,6 +69,8 @@ if __name__ == '__main__':
 			for unit_point in points_unit_circle:
 				field_tails.append(FieldTail(unit_point + charge_position, charge_position, charge_velocity, charge_acceleration))
 
+		late_index = None
+		curr_index = 0
 		for field_tail in field_tails:
 			E_vector = field_tail.E_vector()
 			E_vector *= ELECTRIC_FIELD_SCALING
@@ -77,8 +82,15 @@ if __name__ == '__main__':
 			#TODO: be careful of sneaky python pass by reference?
 			field_tail.advance(dt)
 
-			#TODO: if we run this forever, we should probably clear points too far apart (should be ordered)
-			#solution: flag the index of a field_tail really close to boundary and delete all after that index
+			# we need to delete the first few tails as they are too old, they are ordered chronologically
+			# by creation time. These old are so far you can't see them so don't process them to save
+			# CPU and RAM
+			if field_tail._time > MAX_DISTANCE / SPEED_OF_LIGHT:
+				late_index = curr_index
+			curr_index += 1
+
+		if late_index is not None:
+			del field_tails[:late_index]
 
 		plt.scatter(charge_position[0], charge_position[1], color = 'blue')
 		
