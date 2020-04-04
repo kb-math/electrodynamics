@@ -69,6 +69,11 @@ if __name__ == '__main__':
 			for unit_point in points_unit_circle:
 				field_tails.append(FieldTail(unit_point + charge_position, charge_position, charge_velocity, charge_acceleration))
 
+		quiver_base_x_list = []
+		quiver_base_y_list = []
+		quiver_x_list = []
+		quiver_y_list = []
+
 		late_index = None
 		curr_index = 0
 		for field_tail in field_tails:
@@ -76,8 +81,12 @@ if __name__ == '__main__':
 			E_vector *= ELECTRIC_FIELD_SCALING
 			E_vector_length = np.linalg.norm(E_vector)
 			x = np.array(field_tail._position)
-			#plt.arrow(x[0], x[1], E_vector[0], E_vector[1], head_width = 0.5, head_length = 0.5)
-			plt.quiver(x[0], x[1], E_vector[0], E_vector[1])
+
+			quiver_base_x_list.append(x[0])
+			quiver_base_y_list.append(x[1])
+			#plot normalized vector as the E field can be very large close to particle
+			quiver_x_list.append(E_vector[0] / E_vector_length)
+			quiver_y_list.append(E_vector[1] / E_vector_length)
 
 			#TODO: be careful of sneaky python pass by reference?
 			field_tail.advance(dt)
@@ -92,6 +101,7 @@ if __name__ == '__main__':
 		if late_index is not None:
 			del field_tails[:late_index]
 
+		plt.quiver(quiver_base_x_list, quiver_base_y_list, quiver_x_list, quiver_y_list, units = 'xy')
 		plt.scatter(charge_position[0], charge_position[1], color = 'blue')
 		
 		plt.axis([-10, 10, -10, 10])
@@ -99,5 +109,5 @@ if __name__ == '__main__':
 
 		br += 1
 		current_time += dt
-		time.sleep(dt * 1.0)
+		time.sleep(dt * 0.2)
 
