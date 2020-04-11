@@ -1,16 +1,12 @@
 from lienard_wiechert import *
 import kinematics.motion_lib as motion_lib
+from view.scene import *
 
 import math
 import numpy as np
-import matplotlib
-import matplotlib.pyplot as plt
 import time
 
 dt = 0.8
-
-# how many metres represents one newton per coulomb
-ELECTRIC_FIELD_SCALING = 0.1
 
 # radiation that has travelled further than this won't be plotted to save CPU and RAM
 MAX_DISTANCE = 15.0
@@ -41,9 +37,8 @@ if __name__ == '__main__':
 		theta = 2*math.pi*k/8
 		points_unit_circle.append(np.array([math.cos(theta), math.sin(theta), 0]))
 
-	ax = plt.axes()
-	fig = plt.figure()
-	fig.show()
+	field_view = Scene()
+	field_view.initialize_view()
 
 	charge_motion = motion_lib.Sinusoidal(freq = 0.1, max_speed = 0.6 * SPEED_OF_LIGHT)
 	'''
@@ -59,7 +54,6 @@ if __name__ == '__main__':
 
 	#TODO: factor in general speed of light and consequent retardation
 	while (True):
-		plt.clf()
 		charge_kinematics = charge_motion.get_state(current_time)
 		charge_position = np.array(charge_kinematics.position)
 		charge_velocity = np.array(charge_kinematics.velocity)
@@ -68,28 +62,12 @@ if __name__ == '__main__':
 		for unit_point in points_unit_circle:
 			field_tails.append(FieldTail(unit_point + charge_position, charge_position, charge_velocity, charge_acceleration))
 
-		quiver_base_x_list = []
-		quiver_base_y_list = []
-		quiver_x_list = []
-		quiver_y_list = []
-		quiver_lengths = []
-
 		late_index = None
 		curr_index = 0
+
+		field_view.update_view(field_tails, charge_position)
+		
 		for field_tail in field_tails:
-			E_vector = field_tail.E_vector()
-			E_vector *= ELECTRIC_FIELD_SCALING
-			E_vector_length = np.linalg.norm(E_vector)
-			x = np.array(field_tail._position)
-
-			quiver_base_x_list.append(x[0])
-			quiver_base_y_list.append(x[1])
-			#scale the vector a unit vector otherwise creetes clutter
-			quiver_x_list.append(E_vector[0] if E_vector_length == 0.0 else E_vector[0] / E_vector_length)
-			quiver_y_list.append(E_vector[1] if E_vector_length == 0.0 else E_vector[1] / E_vector_length)
-			quiver_lengths.append(E_vector_length)
-
-			#TODO: be careful of sneaky python pass by reference?
 			field_tail.advance(dt)
 
 			# we need to delete the first few tails as they are too old, they are ordered chronologically
@@ -100,16 +78,10 @@ if __name__ == '__main__':
 			curr_index += 1
 
 		if late_index is not None:
+			#TODO: field_tails should be a deque and we can pop
 			del field_tails[:late_index]
 
-		plt.quiver(quiver_base_x_list, quiver_base_y_list, quiver_x_list, quiver_y_list, 
-			quiver_lengths, 
-			norm = matplotlib.colors.LogNorm(vmin=min(quiver_lengths), vmax=max(quiver_lengths), clip=True), 
-			cmap='Greys')
-		plt.scatter(charge_position[0], charge_position[1], color = 'blue')
-		
-		plt.axis([-10, 10, -10, 10])
-		fig.canvas.draw()
+		field_view.plot_quivers()
 
 		br += 1
 		current_time += dt
