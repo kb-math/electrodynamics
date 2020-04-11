@@ -3,6 +3,7 @@ import kinematics.motion_lib as motion_lib
 
 import math
 import numpy as np
+import matplotlib
 import matplotlib.pyplot as plt
 import time
 
@@ -64,15 +65,14 @@ if __name__ == '__main__':
 		charge_velocity = np.array(charge_kinematics.velocity)
 		charge_acceleration = np.array(charge_kinematics.acceleration)
 
-		should_plot_electric_field = (br % 1 == 0)
-		if should_plot_electric_field:
-			for unit_point in points_unit_circle:
-				field_tails.append(FieldTail(unit_point + charge_position, charge_position, charge_velocity, charge_acceleration))
+		for unit_point in points_unit_circle:
+			field_tails.append(FieldTail(unit_point + charge_position, charge_position, charge_velocity, charge_acceleration))
 
 		quiver_base_x_list = []
 		quiver_base_y_list = []
 		quiver_x_list = []
 		quiver_y_list = []
+		quiver_lengths = []
 
 		late_index = None
 		curr_index = 0
@@ -84,9 +84,10 @@ if __name__ == '__main__':
 
 			quiver_base_x_list.append(x[0])
 			quiver_base_y_list.append(x[1])
-			#plot normalized vector as the E field can be very large close to particle
-			quiver_x_list.append(E_vector[0] / E_vector_length)
-			quiver_y_list.append(E_vector[1] / E_vector_length)
+			#scale the vector a unit vector otherwise creetes clutter
+			quiver_x_list.append(E_vector[0] if E_vector_length == 0.0 else E_vector[0] / E_vector_length)
+			quiver_y_list.append(E_vector[1] if E_vector_length == 0.0 else E_vector[1] / E_vector_length)
+			quiver_lengths.append(E_vector_length)
 
 			#TODO: be careful of sneaky python pass by reference?
 			field_tail.advance(dt)
@@ -101,7 +102,10 @@ if __name__ == '__main__':
 		if late_index is not None:
 			del field_tails[:late_index]
 
-		plt.quiver(quiver_base_x_list, quiver_base_y_list, quiver_x_list, quiver_y_list, units = 'xy')
+		plt.quiver(quiver_base_x_list, quiver_base_y_list, quiver_x_list, quiver_y_list, 
+			quiver_lengths, 
+			norm = matplotlib.colors.LogNorm(vmin=min(quiver_lengths), vmax=max(quiver_lengths), clip=True), 
+			cmap='Greys')
 		plt.scatter(charge_position[0], charge_position[1], color = 'blue')
 		
 		plt.axis([-10, 10, -10, 10])
