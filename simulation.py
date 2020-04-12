@@ -1,16 +1,19 @@
-from lienard_wiechert import *
+import lienard_wiechert
+from lienard_wiechert import SPEED_OF_LIGHT as SPEED_OF_LIGHT
 import kinematics.motion_lib as motion_lib
 from view.scene import *
 
+import argparse
 import math
 import numpy as np
 import time
 
-dt = 0.8
+dt = 0.5
 
 # radiation that has travelled further than this won't be plotted to save CPU and RAM
 MAX_DISTANCE = 15.0
 
+electric_field_function = None
 
 class FieldTail(object):
 	def __init__(self, position, source_position, source_velocity, source_acceleration):
@@ -20,17 +23,29 @@ class FieldTail(object):
 		self._source_acceleration = np.array(source_acceleration)
 		self._time = np.linalg.norm(source_position - position)/SPEED_OF_LIGHT
 		self._direction = (position - source_position)/np.linalg.norm(source_position - position)
+		self.E_vector = None
+
+		self.update_electric_field()
 
 	def advance(self, dt):
 		self._time += dt
 		self._position += self._direction * dt * SPEED_OF_LIGHT
+		self.update_electric_field()
 
-	def E_vector(self):
-		return electric_field(self._source_position, self._source_velocity, self._source_acceleration, self._position)
+	def update_electric_field(self):
+		self.E_vector = electric_field_function(
+			self._source_position, self._source_velocity, self._source_acceleration, self._position)
 
 
 if __name__ == '__main__':
-	
+	parser = argparse.ArgumentParser()
+	parser.add_argument('--far', default = False, action = 'store_true', 
+		help = "only plot far field component")
+	args = parser.parse_args()
+
+	electric_field_function = lienard_wiechert.electric_field
+	if args.far:
+		electric_field_function = lienard_wiechert.far_field_term
 	points_unit_circle = []
 
 	for k in range(8):

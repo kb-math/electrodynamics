@@ -30,23 +30,25 @@ class Scene(object):
 		self.quiver_lengths = []
 
 		for field_tail in field_tails:
-			E_vector = field_tail.E_vector()
+			E_vector = field_tail.E_vector
 			E_vector *= ELECTRIC_FIELD_SCALING
 			E_vector_length = np.linalg.norm(E_vector)
 
-			self.quiver_base_x_list.append(field_tail._position[0])
-			self.quiver_base_y_list.append(field_tail._position[1])
-			#scale the vector a unit vector otherwise creetes clutter
-			self.quiver_x_list.append(E_vector[0] if E_vector_length == 0.0 else E_vector[0] / E_vector_length)
-			self.quiver_y_list.append(E_vector[1] if E_vector_length == 0.0 else E_vector[1] / E_vector_length)
-			self.quiver_lengths.append(E_vector_length)
+			if E_vector_length > 0.0:
+				self.quiver_base_x_list.append(field_tail._position[0])
+				self.quiver_base_y_list.append(field_tail._position[1])
+				#scale the vector a unit vector otherwise creetes clutter
+				self.quiver_x_list.append(E_vector[0] / E_vector_length)
+				self.quiver_y_list.append(E_vector[1] / E_vector_length)
+				self.quiver_lengths.append(E_vector_length)
 
 	def plot_quivers(self):
 		plt.clf()
-		plt.quiver(self.quiver_base_x_list, self.quiver_base_y_list, self.quiver_x_list, self.quiver_y_list, 
-		self.quiver_lengths, 
-		norm = matplotlib.colors.LogNorm(vmin=min(self.quiver_lengths), vmax=max(self.quiver_lengths), clip=True), 
-		cmap='Greys')
+		if self.quiver_lengths:
+			plt.quiver(self.quiver_base_x_list, self.quiver_base_y_list, self.quiver_x_list, self.quiver_y_list, 
+			self.quiver_lengths, 
+			norm = matplotlib.colors.LogNorm(vmin=min(self.quiver_lengths), vmax=max(self.quiver_lengths), clip=True), 
+			cmap='Greys')
 
 		plt.scatter(self.charge_position[0], self.charge_position[1], color = 'blue')
 		
