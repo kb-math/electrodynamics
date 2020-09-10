@@ -20,7 +20,7 @@ class Scene(object):
 		self.quiver_lengths = []
 		self.charge_position = [0, 0, 0]
 
-	def update_view(self, field_tails, charge_position):
+	def update_view(self, field_samples, charge_position):
 		self.charge_position = charge_position
 
 		self.quiver_base_x_list = []
@@ -29,7 +29,7 @@ class Scene(object):
 		self.quiver_y_list = []
 		self.quiver_lengths = []
 
-		for field_tail in field_tails:
+		for field_tail in field_samples:
 			E_vector = field_tail.E_vector
 			E_vector *= ELECTRIC_FIELD_SCALING
 			E_vector_length = np.linalg.norm(E_vector)
