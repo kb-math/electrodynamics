@@ -53,7 +53,8 @@ class SimulationEngine(object):
 		charge_acceleration = np.array(charge_kinematics.acceleration)
 
 		for unit_vec in points_unit_circle:
-			self._field_tails.append(FieldTail(charge_position + unit_vec, charge_position, charge_velocity, charge_acceleration))
+			self._field_tails.append(FieldTail(charge_position + unit_vec, charge_position, 
+				charge_velocity, charge_acceleration))
 
 		late_index = None
 		curr_index = 0
@@ -114,6 +115,6 @@ if __name__ == '__main__':
 
 	#TODO: factor in general speed of light and consequent retardation
 	while (True):
-		time.sleep(dt * 0.2)
 		simulation_engine.advance_simulation(dt)
+		time.sleep(dt * 0.2)
 
