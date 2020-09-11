@@ -13,17 +13,17 @@ MAX_DISTANCE = 15.0
 
 electric_field_function = None
 
-class FieldTail(object):
-	def __init__(self, position, source_position, source_velocity, source_acceleration):
-		self._position = np.array(position)
+fast_forward_rate = 5.0
+
+class ElectricFieldSample(object):
+	def __init__(self, direction, source_position, source_velocity, source_acceleration):
+		self._direction = np.array(direction)
+		self._position = np.array(source_position)
 		self._source_position = np.array(source_position)
 		self._source_velocity = np.array(source_velocity)
 		self._source_acceleration = np.array(source_acceleration)
-		self._time = np.linalg.norm(source_position - position)/SPEED_OF_LIGHT
-		self._direction = (position - source_position)/np.linalg.norm(source_position - position)
+		self._time = 0
 		self.E_vector = None
-
-		self.update_electric_field()
 
 	def advance(self, dt):
 		self._time += dt
@@ -35,53 +35,63 @@ class FieldTail(object):
 			self._source_position, self._source_velocity, self._source_acceleration, self._position)
 
 class SimulationEngine(object):
-	def __init__(self, electric_field_function, charge_motion, direction_unit_vectors, field_view = None):
+	def __init__(self, charge_motion, direction_unit_vectors):
 		self._charge_motion = charge_motion
-		self._electric_field_function = electric_field_function
+		#directions that field samples move in
 		self._direction_unit_vectors = direction_unit_vectors
 
 		self._current_time = 0.0
-		self._field_tails = []
+		self._field_samples = []
 
-		#TODO: remove these
-		self._field_view = field_view
+		self._update_charge_kinematics()
+
+	def _update_charge_kinematics(self):
+		charge_kinematics = self._charge_motion.get_state(self._current_time)
+
+		self._charge_position = np.array(charge_kinematics.position)
+		self._charge_velocity = np.array(charge_kinematics.velocity)
+		self._charge_acceleration = np.array(charge_kinematics.acceleration)
+
+	def _emit_new_field_samples(self):
+		for unit_vec in self._direction_unit_vectors:
+			self._field_samples.append(ElectricFieldSample(unit_vec, self._charge_position, 
+				self._charge_velocity, self._charge_acceleration))
 
 	def advance_simulation(self, dt):
-		charge_kinematics = self._charge_motion.get_state(self._current_time)
-		charge_position = np.array(charge_kinematics.position)
-		charge_velocity = np.array(charge_kinematics.velocity)
-		charge_acceleration = np.array(charge_kinematics.acceleration)
+		#emit new samples from the old charge position, we must do this before updating the position
+		self._emit_new_field_samples()
 
-		for unit_vec in points_unit_circle:
-			self._field_tails.append(FieldTail(charge_position + unit_vec, charge_position, 
-				charge_velocity, charge_acceleration))
+		self._current_time += dt
+		self._update_charge_kinematics()
 
 		late_index = None
 		curr_index = 0
-
-		field_view.update_view(self._field_tails, charge_position)
 		
-		for field_tail in self._field_tails:
-			field_tail.advance(dt)
+		for field_sample in self._field_samples:
+			field_sample.advance(dt)
 
-			# we need to delete the first few tails as they are too old, they are ordered chronologically
+			# we need to delete the first few samples as they are too old, they are ordered chronologically
 			# by creation time. These old are so far you can't see them so don't process them to save
 			# CPU and RAM
-			if field_tail._time > MAX_DISTANCE / SPEED_OF_LIGHT:
+			if field_sample._time > MAX_DISTANCE / SPEED_OF_LIGHT:
 				late_index = curr_index
 			curr_index += 1
 
 		if late_index is not None:
-			#TODO: self._field_tails should be a deque and we can pop
-			del self._field_tails[:late_index]
-
-		field_view.plot_quivers()
-
-		self._current_time += dt
+			#TODO: self._field_samples should be a deque and we can pop
+			del self._field_samples[:late_index]
 
 	def get_next_frames(self, dt, frame_count):
 		pass
 
+	def get_field_samples(self):
+		return self._field_samples
+
+	def get_charge_position(self):
+		return self._charge_position
+
+	def get_current_time(self):
+		return self._current_time
 
 if __name__ == '__main__':
 	parser = argparse.ArgumentParser()
@@ -109,12 +119,18 @@ if __name__ == '__main__':
 		np.array([0.0,0.0,0.0]))
 	'''
 
-	simulation_engine = SimulationEngine(electric_field_function, charge_motion, points_unit_circle, 
-		field_view = field_view)
+	simulation_engine = SimulationEngine(charge_motion, direction_unit_vectors = points_unit_circle)
 	dt = 0.5
 
 	#TODO: factor in general speed of light and consequent retardation
 	while (True):
-		simulation_engine.advance_simulation(dt)
-		time.sleep(dt * 0.2)
 
+		simulation_engine.advance_simulation(dt)
+
+		field_samples, charge_position, current_time = (
+			simulation_engine.get_field_samples(), simulation_engine.get_charge_position(), simulation_engine.get_current_time())
+
+		field_view.update_view(field_samples, charge_position)
+		field_view.plot_quivers()
+
+		time.sleep(dt/fast_forward_rate)
