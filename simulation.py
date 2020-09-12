@@ -34,6 +34,9 @@ class ElectricFieldSample(object):
 		self.E_vector = electric_field_function(
 			self._source_position, self._source_velocity, self._source_acceleration, self._position)
 
+	def too_old(self):
+		 self._time * SPEED_OF_LIGHT > MAX_DISTANCE
+
 class SimulationEngine(object):
 	def __init__(self, charge_motion, direction_unit_vectors):
 		self._charge_motion = charge_motion
@@ -41,6 +44,8 @@ class SimulationEngine(object):
 		self._direction_unit_vectors = direction_unit_vectors
 
 		self._current_time = 0.0
+		self._last_sample_generation_time = None
+		self._sample_generation_period = 0.0
 		self._field_samples = []
 
 		self._update_charge_kinematics()
@@ -59,23 +64,25 @@ class SimulationEngine(object):
 
 	def advance_simulation(self, dt):
 		#emit new samples from the old charge position, we must do this before updating the position
-		self._emit_new_field_samples()
+		if (self._last_sample_generation_time is None) or (self._current_time > self._last_sample_generation_time + self._sample_generation_period): 
+			self._emit_new_field_samples()
+			self._last_sample_generation_time = self._current_time
 
 		self._current_time += dt
 		self._update_charge_kinematics()
 
 		late_index = None
-		curr_index = 0
 		
-		for field_sample in self._field_samples:
-			field_sample.advance(dt)
+		for curr_index, field_sample in enumerate(self._field_samples):
 
-			# we need to delete the first few samples as they are too old, they are ordered chronologically
+			# we need to delete the last few samples as they are too old, they are ordered chronologically
 			# by creation time. These old are so far you can't see them so don't process them to save
 			# CPU and RAM
-			if field_sample._time > MAX_DISTANCE / SPEED_OF_LIGHT:
+			if field_sample.too_old():
 				late_index = curr_index
-			curr_index += 1
+				continue
+
+			field_sample.advance(dt)
 
 		if late_index is not None:
 			#TODO: self._field_samples should be a deque and we can pop
@@ -84,13 +91,16 @@ class SimulationEngine(object):
 	def get_next_frames(self, dt, frame_count):
 		pass
 
-	def get_field_samples(self):
+	@property
+	def field_samples(self):
 		return self._field_samples
 
-	def get_charge_position(self):
+	@property
+	def charge_position(self):
 		return self._charge_position
 
-	def get_current_time(self):
+	@property
+	def current_time(self):
 		return self._current_time
 
 if __name__ == '__main__':
@@ -127,10 +137,7 @@ if __name__ == '__main__':
 
 		simulation_engine.advance_simulation(dt)
 
-		field_samples, charge_position, current_time = (
-			simulation_engine.get_field_samples(), simulation_engine.get_charge_position(), simulation_engine.get_current_time())
-
-		field_view.update_view(field_samples, charge_position)
+		field_view.update_view(simulation_engine.field_samples, simulation_engine.charge_position)
 		field_view.plot_quivers()
 
 		time.sleep(dt/fast_forward_rate)
