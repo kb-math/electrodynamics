@@ -9,7 +9,7 @@ import numpy as np
 import time
 
 # radiation that has travelled further than this won't be plotted to save CPU and RAM
-MAX_DISTANCE = 1.0
+MAX_DISTANCE = 15.0
 
 electric_field_function = None
 
@@ -84,7 +84,6 @@ class SimulationEngine(object):
 
 			field_sample.advance(dt)
 
-		print ("late_index", late_index)
 		if late_index is not None:
 			#TODO: self._field_samples should be a deque and we can pop
 			del self._field_samples[:late_index]
