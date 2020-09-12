@@ -9,11 +9,11 @@ import numpy as np
 import time
 
 # radiation that has travelled further than this won't be plotted to save CPU and RAM
-MAX_DISTANCE = 15.0
+MAX_DISTANCE = 1.0
 
 electric_field_function = None
 
-fast_forward_rate = 5.0
+fast_forward_rate = 15.0
 
 class ElectricFieldSample(object):
 	def __init__(self, direction, source_position, source_velocity, source_acceleration):
@@ -35,7 +35,7 @@ class ElectricFieldSample(object):
 			self._source_position, self._source_velocity, self._source_acceleration, self._position)
 
 	def too_old(self):
-		 self._time * SPEED_OF_LIGHT > MAX_DISTANCE
+		return self._time * SPEED_OF_LIGHT > MAX_DISTANCE
 
 class SimulationEngine(object):
 	def __init__(self, charge_motion, direction_unit_vectors):
@@ -84,6 +84,7 @@ class SimulationEngine(object):
 
 			field_sample.advance(dt)
 
+		print ("late_index", late_index)
 		if late_index is not None:
 			#TODO: self._field_samples should be a deque and we can pop
 			del self._field_samples[:late_index]
