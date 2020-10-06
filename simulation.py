@@ -1,4 +1,5 @@
 from simulation_engine import *
+from utils.flask_helper import *
 
 from flask import Flask, json
 from flask import request
@@ -9,6 +10,7 @@ class SimulationServer(object):
 		self.server = Flask(__name__)
 
 		@self.server.route('/trajectory', methods=['GET'])
+		@crossdomain(origin='*')
 		def get_trajectories():
 			duration = float(request.args.get("duration"))
 			dt = float(request.args.get("dt"))
