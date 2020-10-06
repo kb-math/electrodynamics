@@ -11,7 +11,7 @@ import threading
 # how many metres represents one newton per coulomb
 ELECTRIC_FIELD_SCALING = 0.1
 
-fast_forward_rate = 5.0
+fast_forward_rate = 4.0
 
 class Scene(object):
 	@classmethod
