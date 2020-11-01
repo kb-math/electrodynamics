@@ -1,5 +1,6 @@
 import React from 'react';
 import { StyleSheet, View } from 'react-native';
+import { SimulationContainer } from './components';
 
 export default function App() {
   return (
