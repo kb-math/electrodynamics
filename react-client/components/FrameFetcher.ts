@@ -1,10 +1,11 @@
 import { Plotter } from './Plotter';
 import { createFrameBufferUrl, getJsonRequest, sleep } from './requestUtils';
+import { FrameData } from './types';
 
 export class FrameFetcher {
   private plotter: Plotter;
-  private backFrameBuffer: any;
-  private frontFrameBuffer: any;
+  private backFrameBuffer: FrameData[] | null;
+  private frontFrameBuffer: FrameData[] | null;
   private duration: number;
   private ffwRate: number;
   private dt: number;
@@ -43,8 +44,8 @@ export class FrameFetcher {
 
     this.getNextBuffer();
 
-    for (var frame of this.frontFrameBuffer) {
-      var nextPlotTime = frame[0];
+    for (const frame of this.frontFrameBuffer) {
+      const nextPlotTime = frame[0];
       if (this.lastPlotTime != null) {
         await sleep((1000 * (nextPlotTime - this.lastPlotTime)) / this.ffwRate);
       }
@@ -54,11 +55,13 @@ export class FrameFetcher {
     }
   }
 
-  private setBack(nextFrameBuffer: any): void {
+  private setBack(nextFrameBuffer: FrameData[]): void {
     this.backFrameBuffer = nextFrameBuffer;
   }
 
   private async getNextBuffer(): Promise<void> {
-    getJsonRequest(createFrameBufferUrl(this.duration, this.dt), this.setBack);
+    getJsonRequest(createFrameBufferUrl(this.duration, this.dt), (data: FrameData[]) => {
+      this.setBack(data);
+    });
   }
 }

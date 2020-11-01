@@ -1,8 +1,6 @@
 import { CircleGeometry, Mesh, MeshBasicMaterial, Object3D, Scene, Vector3 } from 'three';
 import { THREEWrapper } from './THREEWrapper';
-
-type ArrayOf3Number = [number, number, number];
-type PositionDirectionPair = [ArrayOf3Number, ArrayOf3Number];
+import { ArrayOf3Number, PositionDirectionPair } from './types';
 
 export class Plotter {
   private threeWrapper: THREEWrapper;
