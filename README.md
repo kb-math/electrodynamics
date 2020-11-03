@@ -5,7 +5,7 @@ Plots the electric field of a moving point charge. More precisely, it is the LiÃ
 ![Demo](electric_field_moving_charge_demo.gif)
 
 ##### React F/E (in construction):
-
-1. Install dependency: navigate to `react-client` folder, then run `>>> yarn`
-2. Start server to listen to F/E requests
-3. Run F/E: (in the same `react-client` folder): run `>>> yarn web`
+1. Install `expo-cli` globally using `yarn`
+2. Install dependency: navigate to `react-client` folder, then run `>>> yarn`
+3. Start server to listen to F/E requests
+4. Run F/E: (in the same `react-client` folder): run `>>> yarn web`
