@@ -57,7 +57,8 @@ class Scene(object):
 			plt.quiver(self.quiver_base_x_list, self.quiver_base_y_list, self.quiver_x_list, self.quiver_y_list, 
 			self.quiver_lengths, 
 			norm = matplotlib.colors.LogNorm(vmin=min(self.quiver_lengths), vmax=max(self.quiver_lengths), clip=True), 
-			cmap='Greys')
+			cmap='YlOrRd'
+			)
 
 		plt.scatter(self.charge_position[0], self.charge_position[1], color = 'blue')
 		
