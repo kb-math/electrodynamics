@@ -74,7 +74,7 @@ def create_charge_rod(start, end, frequency, amplitude):
     start_charge = create_periodic_charge_point(start, frequency, -amplitude)
     end_charge = create_periodic_charge_point(end, frequency, amplitude)
 
-    current_rate_function = lambda t: amplitude * (2 * math.pi * frequency)**2 * math.cos(2 * math.pi * frequency * t)
+    current_rate_function = lambda t: -amplitude * (2 * math.pi * frequency)**2 * math.sin(2 * math.pi * frequency * t)
 
     return ChargedRod(start_charge, end_charge, current_rate_function)
 
