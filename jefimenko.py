@@ -3,6 +3,7 @@ import numpy as np
 import time
 
 import view.scene
+from charge_sample import ChargeSample
 
 class PointCharge(object):
     def __init__(self, position, charge_function, charge_rate_function):
@@ -102,10 +103,13 @@ if __name__ == '__main__':
         for sample in samples:
             field_samples.append((sample, charge_rod.calculate_electric_field(sample, current_time)))
 
-        #TODO: get rid of this uneccessary second argument
-        viewer.update_view(field_samples, np.array([0.0, 0.0, 0.0]))
+        viewer.update_field_samples(field_samples)
+        viewer.update_charge_samples( [
+            ChargeSample(charge_rod.start_charge.position, charge_rod.start_charge.charge_function(current_time)),
+            ChargeSample(charge_rod.end_charge.position, charge_rod.end_charge.charge_function(current_time))
+            ] )
 
-        viewer.plot_quivers()
+        viewer.plot()
 
         current_time += dt
 

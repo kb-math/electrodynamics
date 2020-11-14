@@ -1,4 +1,5 @@
 from utils.atomic_var import *
+from charge_sample import ChargeSample
 
 import matplotlib
 matplotlib.use('TkAgg') 
@@ -26,11 +27,13 @@ class Scene(object):
 		self.quiver_x_list = []
 		self.quiver_y_list = []
 		self.quiver_lengths = []
-		self.charge_position = [0, 0, 0]
+		self.charge_samples = []
 
-	def update_view(self, field_samples, charge_position):
-		self.charge_position = charge_position
+	def update_charge_samples(self, charge_samples):
+		# TODO: To copy or not to copy, that is the question
+		self.charge_samples = list(charge_samples)
 
+	def update_field_samples(self, field_samples):
 		self.quiver_base_x_list = []
 		self.quiver_base_y_list = []
 		self.quiver_x_list = []
@@ -46,12 +49,12 @@ class Scene(object):
 			if E_vector_length > 0.0:
 				self.quiver_base_x_list.append(tail_position[0])
 				self.quiver_base_y_list.append(tail_position[1])
-				#scale the vector a unit vector otherwise creetes clutter
+				#scale the vector a unit vector otherwise creates clutter
 				self.quiver_x_list.append(E_vector[0] / E_vector_length)
 				self.quiver_y_list.append(E_vector[1] / E_vector_length)
 				self.quiver_lengths.append(E_vector_length)
 
-	def plot_quivers(self):
+	def plot(self):
 		plt.clf()
 		if self.quiver_lengths:
 			plt.quiver(self.quiver_base_x_list, self.quiver_base_y_list, self.quiver_x_list, self.quiver_y_list, 
@@ -60,7 +63,13 @@ class Scene(object):
 			cmap='YlOrRd'
 			)
 
-		plt.scatter(self.charge_position[0], self.charge_position[1], color = 'blue')
+		for charge_sample in self.charge_samples:
+			colour = 'red'
+			if charge_sample.charge < 0.0:
+				colour = 'blue'
+			plt.scatter(charge_sample.position[0], charge_sample.position[1],
+				s = 20*abs(charge_sample.charge),
+				color = colour)
 		
 		plt.axis([-10, 10, -10, 10])
 		self.fig.canvas.draw()
