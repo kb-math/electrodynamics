@@ -79,7 +79,7 @@ def create_charge_rod(start, end, frequency, amplitude):
     return ChargedRod(start_charge, end_charge, current_rate_function)
 
 if __name__ == '__main__':
-    charge_rod = create_charge_rod( np.array([0.0, 0.0, 0.0]), np.array([0.0, 1.0, 0.0]), 0.05, 1.0)
+    charge_rod = create_charge_rod( np.array([0.0, 0.0, 0.0]), np.array([0.0, 1.0, 0.0]), 0.1, 1.0)
 
     samples = []
 
@@ -94,7 +94,7 @@ if __name__ == '__main__':
     viewer = view.scene.Scene()
     viewer.initialize_view()
 
-    dt = 0.5
+    dt = 0.25
     current_time = 0.0
     while True:
         field_samples = []
@@ -114,7 +114,7 @@ if __name__ == '__main__':
             time.sleep(1.0)
 
         end_time = time.time()
-        time.sleep(max(0, dt - end_time - start_time))
+        time.sleep(max(0, (dt - end_time + start_time)))
 
 
 
