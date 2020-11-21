@@ -1,2 +1,7 @@
 __pycache__
 .vscode
+node_modules
+.DS_Store
+*.pyc
+.expo
+yarn-error.log
