@@ -109,16 +109,12 @@ if __name__ == '__main__':
             ChargeSample(charge_rod.end_charge.position, charge_rod.end_charge.charge_function(current_time))
             ] )
 
-        viewer.plot()
+        end_time = time.time()
+        time_to_sleep = max(0, dt - end_time + start_time)
+        viewer.plot(time_to_sleep)
 
         current_time += dt
 
-        while True:
-            break
-            time.sleep(1.0)
-
-        end_time = time.time()
-        time.sleep(max(0, (dt - end_time + start_time)))
 
 
 

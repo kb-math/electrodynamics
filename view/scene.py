@@ -54,7 +54,7 @@ class Scene(object):
 				self.quiver_y_list.append(E_vector[1] / E_vector_length)
 				self.quiver_lengths.append(E_vector_length)
 
-	def plot(self):
+	def plot(self, frame_duration):
 		plt.clf()
 		if self.quiver_lengths:
 			plt.quiver(self.quiver_base_x_list, self.quiver_base_y_list, self.quiver_x_list, self.quiver_y_list, 
@@ -73,6 +73,7 @@ class Scene(object):
 		
 		plt.axis([-10, 10, -10, 10])
 		self.fig.canvas.draw()
+		plt.pause(frame_duration)
 
 class ContinuousPlotter(object):
 	def __init__(self, get_next_frames_callback):
