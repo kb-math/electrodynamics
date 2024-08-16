@@ -6,7 +6,7 @@ Plots the electric field of a moving point charge. More precisely, it is the Li√
 
 ![Demo](electric_field_moving_charge_demo.gif)
 
- How to run:
+ #### How to run:
 
  1. Run simulation.py
  2. Open client.html in the browser.
